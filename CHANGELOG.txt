@@ -1,0 +1,10 @@
+2017-06-20: Version 0.1.1 build 65
+ Initial release:
+	* Two options to convert files: C array mode and 'as it is' mode.
+	* Settings can be edited directly in 'hexengine_settings.ini'.
+	* Read 64KB of a file per time.
+	* Conversion can be stopped at any time.
+	
+2017-xx-xx: Version x.x.x build xx
+
+

@@ -1,0 +1,6 @@
+*.exe
+*.o
+*.stash
+*.hex
+*.Debug
+*.Release
