@@ -1,6 +1,7 @@
 #include "ini_parser.h"
 #include "config_form.h"
 #include <QFile>
+#include <QSettings>
 
 static QFile *file = NULL;
 

@@ -287,6 +287,7 @@ void MainWindow::handle_btn_stop_engine_pressed(bool pressed)
     {
         engine->requestInterruption();
         engine->wait(3000);
+
         ui->text_browser->insertHtml("["+ engine->ts() + "] " + "<font color=\"blue\">Task canceled</font><br>");
         this->change_status_bar_color("rgb(0, 170, 0)");
         ui->statusBar->showMessage("Task canceled", 5000);

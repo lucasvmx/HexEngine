@@ -5,6 +5,11 @@
 	* Read 64KB of a file per time.
 	* Conversion can be stopped at any time.
 	
-2017-xx-xx: Version x.x.x build xx
+2018-03-29: Version x.x.x build xx
+ Second release:
+	* Added icon do main executable file
+	* Minor bugs fixed
+	
+xxxx-xx-xx: Version x.x.x build xx
 
 

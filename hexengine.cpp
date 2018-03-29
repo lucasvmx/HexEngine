@@ -1,8 +1,12 @@
 #include "hexengine.h"
 #include "ini_parser.h"
 
+#include <QMessageBox>
+
 #ifdef Q_OS_LINUX
 #include <stdlib.h>
+#else
+#include <windows.h>
 #endif
 
 HexEngine::HexEngine()
@@ -20,7 +24,7 @@ void HexEngine::run()
     this->CreateHexDumpFromFile(this->filename);
 }
 
-void HexEngine::CreateHexDumpFromFile(QString filename)
+void HexEngine::CreateHexDumpFromFile(QString& filename)
 {
     QFile *file = NULL;
     QFile *out = NULL;
@@ -114,7 +118,40 @@ void HexEngine::CreateHexDumpFromFile(QString filename)
                                      file_extension.toStdString().c_str()).toStdString().c_str());
     }
 
-    max_bytes_to_read = 65536;
+    // Check if we are in an computer with less RAM
+     max_bytes_to_read = 65536;
+
+#ifdef Q_OS_WIN
+    MEMORYSTATUSEX *mem = NULL;
+    DWORDLONG totalMemory = 0;
+
+    mem = (MEMORYSTATUSEX*)malloc(sizeof(MEMORYSTATUSEX));
+    if(mem == NULL)
+    {
+        emit text_browser_updated("WARNING: Failed to allocate memory :(<br>");
+    } else
+    {
+        mem->dwLength = sizeof(MEMORYSTATUSEX);
+
+        if(GlobalMemoryStatusEx(mem))
+        {
+            totalMemory = mem->ullTotalPhys;
+            totalMemory /= 1048576; // convert to GB
+            emit text_browser_updated(QString("[" + ts() + "] " + "Total memory: %1 MB<br>").arg(totalMemory));
+
+            if(totalMemory <= 2048)
+            {
+                max_bytes_to_read = 8192;
+            }
+
+        } else {
+            emit text_browser_updated(QString::asprintf("WARNING: GlobalMemoryStatus failed with error %lu<br>",GetLastError()));
+        }
+
+        if(mem)
+            free(mem);
+    }
+#endif
 
     emit text_browser_updated(QString("[" + ts() + "] " + "File size: %1 KB (%2 MB)<br>").arg(total_file_len_KB).arg(total_file_len_MB));
     emit status_bar_color_changed("rgb(0, 0, 255)");

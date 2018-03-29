@@ -21,7 +21,7 @@ public:
     QString filename;
     QString outfilename;
 private:
-    void CreateHexDumpFromFile(QString filename = QString());
+    void CreateHexDumpFromFile(QString &filename);
     QString ts(); /* Time String */
 signals:
     void progress_updated(int v);

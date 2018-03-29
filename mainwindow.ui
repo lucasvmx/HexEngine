@@ -169,7 +169,7 @@ QPushButton::hover
 	border-radius: 6px;
 	background-color: none;
 	color: rgb(0, 0, 0);
-	font: 75 8pt &quot;Courier New&quot;;
+	font: 75 8pt &quot;Arial&quot;;
 }</string>
          </property>
          <property name="frameShape">
