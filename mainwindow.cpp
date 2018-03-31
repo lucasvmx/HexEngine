@@ -116,7 +116,8 @@ void MainWindow::playSound(int id)
         break;
     }
 #else
-    Q_UNUSED(id);
+    (void)id;
+    QApplication::beep();
 #endif
 }
 

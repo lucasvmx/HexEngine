@@ -5,6 +5,7 @@
 
 #ifdef Q_OS_LINUX
 #include <stdlib.h>
+#include <sys/sysinfo.h>
 #else
 #include <windows.h>
 #endif
@@ -136,7 +137,7 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
         if(GlobalMemoryStatusEx(mem))
         {
             totalMemory = mem->ullTotalPhys;
-            totalMemory /= 1048576; // convert to GB
+            totalMemory /= 1048576; // convert to MB
             emit text_browser_updated(QString("[" + ts() + "] " + "Total memory: %1 MB<br>").arg(totalMemory));
 
             if(totalMemory <= 2048)
@@ -151,6 +152,32 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
         if(mem)
             free(mem);
     }
+#else
+    struct sysinfo *sys = NULL;
+    __kernel_ulong_t totalMemory = 0;
+
+    sys = (struct sysinfo*)malloc(sizeof(struct sysinfo));
+    if(sys == NULL)
+    {
+        emit text_browser_updated("WARNING: failed to allocate memory");
+    } else {
+        int s = sysinfo(sys);
+        if(s == 0)
+        {
+            totalMemory = sys->totalram;
+            totalMemory /= 1048576; // convert to MB
+            emit text_browser_updated(QString("[" + ts() + "] " + "Total memory: %1 MB<br>").arg(totalMemory));
+
+            if(totalMemory <= 2048)
+            {
+                max_bytes_to_read = 8192;
+            }
+        }
+
+        if(sys)
+            free(sys);
+    }
+
 #endif
 
     emit text_browser_updated(QString("[" + ts() + "] " + "File size: %1 KB (%2 MB)<br>").arg(total_file_len_KB).arg(total_file_len_MB));
