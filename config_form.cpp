@@ -57,25 +57,22 @@ void config_form::handle_dial_value_changed(int value)
     tm = QTime::currentTime();
     seed = tm.hour() + tm.second() + tm.minute() + tm.msec();
     qsrand(seed);
-    random = qrand() % 9999;
+    random = qrand() % 50 + 1;
 
-    try {
+    try
+    {
         text = QString::asprintf( "0x%%.%dx",value);
+        new_text = QString::asprintf("Hex: %s Dec: %d", text.toStdString().c_str(), random);
+        tx = QString::asprintf(new_text.toStdString().c_str(), random);
 #ifdef QT_DEBUG
-        qDebug() << text;
+        qDebug() << text << ":" << tx << ":" << new_text;
 #endif
     } catch(std::exception e)
     {
-        QMessageBox::critical(this,"Fatal error",QString(e.what()));
+        QMessageBox::critical(this,"Fatal error", QString(e.what()));
         return;
     }
 
-    if(value == 2) {
-        tx = QString::asprintf("Hex: 0x%.2x Dec: %d",random,random);
-    } else {
-        new_text = QString::asprintf("Hex: %s Dec: %d", text.toStdString().c_str(), random);
-        tx = QString::asprintf(new_text.toStdString().c_str(), random);
-    }
     ui->lcd_display_ndigits->display(value);
     ui->label_ndigits_sample->setText(tx);
 }
