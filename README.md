@@ -13,3 +13,6 @@ para o formato hexadecimal. Foi desenvolvida apenas para fins didáticos.
 # Plataformas suportadas
 * Linux - 32 bits
 * Windows - 32 bits e 64 bits
+
+# Captura de Tela
+![Imgur](https://i.imgur.com/h0WMkGc.png)

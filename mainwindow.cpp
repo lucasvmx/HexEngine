@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include "hexengine.h"
 #include "config_form.h"
-#include "version.h"
 #include <QFileDialog>
 #include <QTime>
 #include <QGraphicsEffect>
@@ -25,15 +24,10 @@ MainWindow::MainWindow(QWidget *parent) :
     this->configure_progress_bar();
     this->connect_all();
     this->setWindowIcon(QIcon(":/files/icon1.ico"));
-    this->setWindowTitle(QString("HexEngine v%1.%2.%3 build %4").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_PATCH).arg(VERSION_BUILD));
     ui->text_browser->setAutoFillBackground(false);
     effect = new QGraphicsOpacityEffect(ui->text_browser);
     effect->setOpacity(0.9);
     ui->text_browser->setGraphicsEffect(effect);
-    ui->text_browser->insertHtml(
-                "["+ engine->ts() + "] " \
-                + QString("HexEngine v%1.%2.%3.%4<br>").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_PATCH).arg(VERSION_BUILD) \
-                + "["+ engine->ts() +"] " + QString("Build time: %1<br>").arg(BUILD_DATETIME));
 }
 
 MainWindow::~MainWindow()
