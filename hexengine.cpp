@@ -27,16 +27,16 @@ void HexEngine::run()
 
 void HexEngine::CreateHexDumpFromFile(QString& filename)
 {
-    QFile *file = NULL;
-    QFile *out = NULL;
+    QFile *file = nullptr;
+    QFile *out = nullptr;
     QByteArray data;
-    register qint64 progress = 0;
+    qint64 progress = 0;
     qint64 total_file_len;
 	qint64 total_file_len_KB;
     qint64 total_file_len_MB;
     qint64 readed = 0;
     qint64 max_bytes_to_read;
-    ini_parser *parser = NULL;
+    ini_parser *parser = nullptr;
     qint8 digits = 2;
     qint8 c_array_mode = 0;
 	QString fmt;
@@ -59,11 +59,11 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
 
     out = new QFile(outfilename);
     file = new QFile(filename);
-    if(file == NULL || out == NULL)
+    if(file == nullptr || out == nullptr)
     {
         emit text_browser_updated( "[" + ts() + "] " + "<font color=\"red\">Error:</font> null pointer detected.<br>");
         emit engine_stopped_with_error(true);
-        emit status_bar_updated(QString("Something was wrong (%1) ...").arg(((file == NULL) ? (file->errorString()):(out->errorString()))), 5000);
+        emit status_bar_updated(QString("Something was wrong (%1) ...").arg(((file == nullptr) ? (file->errorString()):(out->errorString()))), 5000);
         emit status_bar_color_changed("rgb(255, 0, 0)");
         return;
     }
@@ -83,10 +83,10 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
     if(cfgFile.exists())
     {
         parser = new ini_parser();
-        if(parser != NULL)
+        if(parser != nullptr)
         {
-            digits = (qint8)parser->getKeyValue("digits");
-            c_array_mode = (qint8)parser->getKeyValue("c_array");
+            digits = static_cast<qint8>(parser->getKeyValue("digits"));
+            c_array_mode = static_cast<qint8>(parser->getKeyValue("c_array"));
             if(parser)
                 delete parser;
         }
@@ -123,11 +123,12 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
      max_bytes_to_read = 65536;
 
 #ifdef Q_OS_WIN
-    MEMORYSTATUSEX *mem = NULL;
+    MEMORYSTATUSEX *mem = nullptr;
     DWORDLONG totalMemory = 0;
 
-    mem = (MEMORYSTATUSEX*)malloc(sizeof(MEMORYSTATUSEX));
-    if(mem == NULL)
+    mem = static_cast<MEMORYSTATUSEX*>(malloc(sizeof(MEMORYSTATUSEX)));
+
+    if(mem == nullptr)
     {
         emit text_browser_updated("WARNING: Failed to allocate memory :(<br>");
     } else
@@ -156,7 +157,8 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
     struct sysinfo *sys = NULL;
     __kernel_ulong_t totalMemory = 0;
 
-    sys = (struct sysinfo*)malloc(sizeof(struct sysinfo));
+    sys = static_cast<struct sysinfo*>(malloc(sizeof(struct sysinfo)));
+
     if(sys == NULL)
     {
         emit text_browser_updated("WARNING: failed to allocate memory");
@@ -208,7 +210,7 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
                 foreach(QChar ch, data)
                 {
                     unsigned int uch;
-                    uch = (unsigned int)ch.toLatin1();
+                    uch = static_cast<unsigned int>(ch.toLatin1());
 
                     fmt = QString("0x%.%1x, ").arg(digits);
                     out->write(QString::asprintf(fmt.toStdString().c_str(), (uch > 0xff) ? 0xff:uch).toStdString().c_str());
@@ -224,7 +226,7 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
                 foreach(QChar ch, data)
                 {
                     unsigned int uch;
-                    uch = (unsigned int)ch.toLatin1();
+                    uch = static_cast<unsigned int>(ch.toLatin1());
 
                     if(ch.toLatin1() == 0x0D)
                         out->write("\n");
@@ -236,7 +238,7 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
 		
         readed += data.length();
         progress = (100 * readed / total_file_len);
-        emit progress_updated(progress);
+        emit progress_updated(static_cast<int>(progress));
     }
 
     if(c_array_mode == 1)

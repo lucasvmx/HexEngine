@@ -12,8 +12,11 @@
 #endif
 #include <QCloseEvent>
 
-HexEngine *engine = NULL;
-QGraphicsOpacityEffect *effect = NULL;
+extern HexEngine *engine;
+extern QGraphicsOpacityEffect *effect;
+
+HexEngine *engine = nullptr;
+QGraphicsOpacityEffect *effect = nullptr;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -208,7 +211,7 @@ void MainWindow::handle_btn_browse_input_pressed(bool pressed)
     {
         ui->line_edit_input->setText(fileName);
         dot_index = fileName.lastIndexOf('.');
-        generatedName = QString().fromStdString(fileName.toStdString().substr(0, dot_index));
+        generatedName = QString().fromStdString(fileName.toStdString().substr(0, static_cast<uint>(dot_index)));
         ui->line_edit_output->setText(generatedName + ".hex" );
         ui->statusBar->showMessage( "Input file location is set.", 5000);
     }
@@ -258,10 +261,10 @@ void MainWindow::handle_btn_init_engine_pressed(bool pressed)
 
 void MainWindow::handle_btn_configure_engine_pressed(bool pressed)
 {
-    static config_form *c = NULL;
+    static config_form *c = nullptr;
     Q_UNUSED(pressed);
 
-    if(c != NULL && c->isVisible())
+    if(c != nullptr && c->isVisible())
     {
         c->setWindowState(Qt::WindowActive);
         QMessageBox::critical(this, "Error", "Settings window is already open",
@@ -269,7 +272,7 @@ void MainWindow::handle_btn_configure_engine_pressed(bool pressed)
         return;
     } else
     {
-        c = new config_form(0);
+        c = new config_form(nullptr);
         c->show();
     }
 }

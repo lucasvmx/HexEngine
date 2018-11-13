@@ -56,7 +56,7 @@ void config_form::handle_dial_value_changed(int value)
 
     tm = QTime::currentTime();
     seed = tm.hour() + tm.second() + tm.minute() + tm.msec();
-    qsrand(seed);
+    qsrand(static_cast<uint>(seed));
     random = qrand() % 50 + 1;
 
     try
@@ -90,14 +90,14 @@ void config_form::handle_window_destroyed(QObject *o)
 
 void config_form::handle_btn_save_settings_clicked(bool b)
 {
-    QFile *ini = NULL;
+    QFile *ini = nullptr;
     QDateTime tm;
 
     Q_UNUSED(b);
 
     ini = new QFile(CONFIG_FILENAME);
 
-    if(ini == NULL)
+    if(ini == nullptr)
     {
         QMessageBox::critical(this, "Error", "Failed to save settings");
         return;

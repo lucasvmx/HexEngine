@@ -3,7 +3,7 @@
 #include <QFile>
 #include <QSettings>
 
-static QFile *file = NULL;
+static QFile *file = nullptr;
 
 ini_parser::ini_parser()
 {
