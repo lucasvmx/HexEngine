@@ -6,5 +6,6 @@
         <file>files/finished-task.mp3</file>
         <file>files/finished-task_with-error.mp3</file>
         <file>files/spin-progress.gif</file>
+        <file>files/shell32_153.ico</file>
     </qresource>
 </RCC>

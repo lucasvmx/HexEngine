@@ -5,3 +5,10 @@
 *.Debug
 *.Release
 releases
+autorevision.h
+*.pro.user.*
+*.pro.user
+commit.txt
+build-debug
+build-release
+build*

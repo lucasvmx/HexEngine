@@ -2,6 +2,11 @@
 #include "ui_mainwindow.h"
 #include "hexengine.h"
 #include "config_form.h"
+#include "forminjector.h"
+#include "exceptions.h"
+#include "common.h"
+#include "autorevision.h"
+
 #include <QFileDialog>
 #include <QTime>
 #include <QGraphicsEffect>
@@ -12,18 +17,22 @@
 #endif
 #include <QCloseEvent>
 
-extern HexEngine *engine;
-extern QGraphicsOpacityEffect *effect;
+using namespace Engine;
 
-HexEngine *engine = nullptr;
-QGraphicsOpacityEffect *effect = nullptr;
+static HexEngine *engine = nullptr;
+static QGraphicsOpacityEffect *effect = nullptr;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    engine = new HexEngine();
+
+    QString name = "HexEngine " + QString(VCS_TAG) + " build " + VCS_SHORT_HASH;
+
+    setWindowTitle(name);
+
+    engine = new Engine::HexEngine();
     this->configure_progress_bar();
     this->connect_all();
     this->setWindowIcon(QIcon(":/files/icon1.ico"));
@@ -86,6 +95,9 @@ void MainWindow::connect_all()
     QObject::connect(ui->btn_stop_engine, SIGNAL(clicked(bool)),
                      this, SLOT(handle_btn_stop_engine_pressed(bool)));
 
+    QObject::connect(ui->actionBatchFileInjector, SIGNAL(triggered(bool)),
+                     this, SLOT(handle_action_batch_file_inject(bool)));
+
      ui->statusBar->showMessage( "Loading completed");
 }
 
@@ -94,28 +106,6 @@ void MainWindow::configure_progress_bar(int min, int max, int value)
     ui->progress_bar->setMaximum(max);
     ui->progress_bar->setMinimum(min);
     ui->progress_bar->setValue(value);
-}
-
-void MainWindow::playSound(int id)
-{
-#ifndef Q_OS_LINUX
-    QMediaPlayer *p = new QMediaPlayer();
-
-    switch(id)
-    {
-    case ID_TASK_COMPLETED:
-        p->setMedia(QUrl("qrc:/files/finished-task.mp3"));
-        p->play();
-    break;
-    case ID_TASK_COMPLETED_WITH_ERROR:
-        p->setMedia(QUrl("qrc:/files/finished-task_with-error.mp3"));
-		p->play();
-        break;
-    }
-#else
-    (void)id;
-    QApplication::beep();
-#endif
 }
 
 void MainWindow::change_status_bar_color(QString rgb)
@@ -160,29 +150,61 @@ void MainWindow::validate_line_edit_text(QString text)
 void MainWindow::play_completed_task_sound(bool b)
 {
     Q_UNUSED(b);
-    this->playSound(ID_TASK_COMPLETED);
+    common::playSound(ID_TASK_COMPLETED);
 }
 
 void MainWindow::play_completed_task_with_error_sound(bool b)
 {
     Q_UNUSED(b);
-    this->playSound(ID_TASK_COMPLETED_WITH_ERROR);
+    common::playSound(ID_TASK_COMPLETED_WITH_ERROR);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     int result;
 
-    result = QMessageBox::question(this, "Question", "Are you sure?");
-    if(result == QMessageBox::Yes)
+    if(engine->isRunning())
     {
-        engine->requestInterruption();
-        engine->wait(3000);
-        engine->terminate();
+        result = QMessageBox::question(this, "Pergunta", "Uma conversão está em andamento. Você tem certeza que deseja interromper a conversão ?");
+        if(result == QMessageBox::Yes)
+        {
+            engine->requestInterruption();
+            engine->wait(3000);
+            engine->terminate();
+            event->accept();
+        } else
+        {
+            event->ignore();
+        }
+    } else {
         event->accept();
+    }
+}
+
+void MainWindow::handle_action_batch_file_inject(bool b)
+{
+    (void)b;
+
+    static formInjector *injectorForm = nullptr;
+
+    if(injectorForm == nullptr)
+    {
+        injectorForm = new formInjector();
+        injectorForm->show();
+        injectorForm->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+        injectorForm->setMouseTracking(true);
     } else
     {
-        event->ignore();
+        if(injectorForm->isVisible())
+            return;
+
+        delete injectorForm;
+
+        injectorForm = new formInjector();
+        injectorForm->show();
+        injectorForm->setFocus();
+        injectorForm->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+        injectorForm->setMouseTracking(true);
     }
 }
 
@@ -204,7 +226,7 @@ void MainWindow::handle_btn_browse_input_pressed(bool pressed)
     Q_UNUSED(pressed);
 
     this->change_status_bar_color("rgb(0, 170, 0)");
-    fileName = QFileDialog::getOpenFileName(this, "Select file to convert",
+    fileName = QFileDialog::getOpenFileName(this, "Escolha o arquivo a ser convertido",
                                  QString(), "All Files (*.*);;");
 
     if(fileName.length() > 0)
@@ -213,11 +235,11 @@ void MainWindow::handle_btn_browse_input_pressed(bool pressed)
         dot_index = fileName.lastIndexOf('.');
         generatedName = QString().fromStdString(fileName.toStdString().substr(0, static_cast<uint>(dot_index)));
         ui->line_edit_output->setText(generatedName + ".hex" );
-        ui->statusBar->showMessage( "Input file location is set.", 5000);
+        ui->statusBar->showMessage( "O arquivo a ser lido já foi selecionado", 5000);
     }
     else {
-        ui->text_browser->setText("No file selected.");
-        ui->statusBar->showMessage("No file selected.");
+        ui->text_browser->setText("Nenhum arquivo selecionado");
+        ui->statusBar->showMessage("Nenhum arquivo selecionado");
     }
 }
 
@@ -267,7 +289,7 @@ void MainWindow::handle_btn_configure_engine_pressed(bool pressed)
     if(c != nullptr && c->isVisible())
     {
         c->setWindowState(Qt::WindowActive);
-        QMessageBox::critical(this, "Error", "Settings window is already open",
+        QMessageBox::critical(this, "Erro", "A janela de configurações já está aberta",
                               QMessageBox::Ok);
         return;
     } else

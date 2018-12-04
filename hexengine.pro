@@ -30,17 +30,26 @@ SOURCES += \
         mainwindow.cpp \
         hexengine.cpp \
         config_form.cpp \
-        ini_parser.cpp
+        ini_parser.cpp \
+    forminjector.cpp \
+    exceptions.cpp \
+    common.cpp \
+    disk.cpp
 
 HEADERS += \
         mainwindow.h \
         hexengine.h \
         config_form.h \
-        ini_parser.h
+        ini_parser.h \
+    forminjector.h \
+    exceptions.h \
+    common.h \
+    disk.h
 
 FORMS += \
         mainwindow.ui \
-    config_form.ui
+    config_form.ui \
+    forminjector.ui
 
 RESOURCES += \
     resources.qrc

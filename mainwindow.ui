@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>498</width>
-    <height>333</height>
+    <width>554</width>
+    <height>364</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -76,7 +76,7 @@
 }</string>
          </property>
          <property name="text">
-          <string>Input file</string>
+          <string>Entrada</string>
          </property>
         </widget>
        </item>
@@ -107,7 +107,7 @@ QPushButton::hover
 }</string>
          </property>
          <property name="text">
-          <string>Browse</string>
+          <string>Procurar</string>
          </property>
          <property name="flat">
           <bool>false</bool>
@@ -132,7 +132,7 @@ QPushButton::hover
 }</string>
          </property>
          <property name="text">
-          <string>Output file</string>
+          <string>Saída</string>
          </property>
         </widget>
        </item>
@@ -201,7 +201,7 @@ QPushButton::hover
 }</string>
          </property>
          <property name="text">
-          <string>Browse</string>
+          <string>Procurar</string>
          </property>
         </widget>
        </item>
@@ -271,7 +271,7 @@ QPushButton::hover
 }</string>
       </property>
       <property name="text">
-       <string>Start</string>
+       <string>Iniciar</string>
       </property>
      </widget>
     </item>
@@ -297,7 +297,7 @@ QPushButton::hover
 }</string>
       </property>
       <property name="text">
-       <string>Stop</string>
+       <string>Parar</string>
       </property>
      </widget>
     </item>
@@ -323,7 +323,7 @@ QPushButton::hover
 }</string>
       </property>
       <property name="text">
-       <string>Settings</string>
+       <string>Configurações</string>
       </property>
      </widget>
     </item>
@@ -334,8 +334,8 @@ QPushButton::hover
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>498</width>
-     <height>20</height>
+     <width>554</width>
+     <height>22</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -346,11 +346,18 @@ QPushButton::hover
      <string notr="true">font: 10pt &quot;Arial&quot;;</string>
     </property>
     <property name="title">
-     <string>File</string>
+     <string>Arquivo</string>
     </property>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menuFerramentas">
+    <property name="title">
+     <string>Ferramentas</string>
+    </property>
+    <addaction name="actionBatchFileInjector"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuFerramentas"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="styleSheet">
@@ -364,11 +371,22 @@ QPushButton::hover
   </widget>
   <action name="actionQuit">
    <property name="text">
-    <string>Quit</string>
+    <string>Sair</string>
+   </property>
+  </action>
+  <action name="actionBatchFileInjector">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/files/shell32_153.ico</normaloff>:/files/shell32_153.ico</iconset>
+   </property>
+   <property name="text">
+    <string>BatchFileInjector</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
