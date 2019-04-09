@@ -1,9 +1,10 @@
-#ifndef HEXENGINE_H
-#define HEXENGINE_H
+#ifndef HEX_ENGINE_H
+#define HEX_ENGINE_H
 
 #include "mainwindow.h"
 #include <QtCore>
 #include <QThread>
+#include <QObject>
 
 #ifndef CONFIG_FILENAME
 #define CONFIG_FILENAME     "hexengine_settings.ini"
@@ -39,28 +40,6 @@ namespace Engine
         void status_bar_color_changed(QString rgb);
     public slots:
         void runHexEngine(bool unused);
-    };
-
-    class HexInjector : public HexEngine
-    {
-        Q_OBJECT
-
-    public:
-        HexInjector();
-        ~HexInjector();
-        void run();
-        void injectFile(QString from, QString to);
-        void setIOFiles(QString from, QString to);
-
-    signals:
-        void status_updated(QString text);
-        void started();
-        void stopped();
-
-    private:
-        QString from, to;
-        bool injectFileToBatchScript(QString fileToInject, QString batchFileName);
-
     };
 }
 

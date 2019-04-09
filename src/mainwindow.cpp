@@ -20,6 +20,7 @@
 using namespace Engine;
 
 static HexEngine *engine = nullptr;
+
 static QGraphicsOpacityEffect *effect = nullptr;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -37,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->connect_all();
     this->setWindowIcon(QIcon(":/files/icon1.ico"));
     ui->text_browser->setAutoFillBackground(false);
+
     effect = new QGraphicsOpacityEffect(ui->text_browser);
     effect->setOpacity(0.9);
     ui->text_browser->setGraphicsEffect(effect);
@@ -46,7 +48,10 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete engine;
+
+#ifdef Q_OS_WIN
     delete effect;
+#endif
 }
 
 void MainWindow::connect_all()
@@ -168,7 +173,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         result = QMessageBox::question(this, "Pergunta", "Uma conversão está em andamento. Você tem certeza que deseja interromper a conversão ?");
         if(result == QMessageBox::Yes)
         {
-            engine->requestInterruption();
+            //engine->requestInterruption();
             engine->wait(3000);
             engine->terminate();
             event->accept();

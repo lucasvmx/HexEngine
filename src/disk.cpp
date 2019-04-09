@@ -2,11 +2,13 @@
 #include <QtCore>
 #include <assert.h>
 #include <exception>
-#include <QException>
 #include <QRegExp>
+#include "exceptions.h"
 
 #ifdef Q_OS_WIN
 #include <windows.h>
+#else
+
 #endif
 
 using namespace std;
@@ -21,7 +23,7 @@ disk::disk(const char *root)
     this->isDiskOpen = false;
 }
 
-bool disk::open_disk()
+bool disk::open_disk() noexcept(false)
 {
 #ifdef Q_OS_WIN
     HANDLE hDisk = nullptr;
@@ -53,15 +55,15 @@ bool disk::open_disk()
 
     return true;
 #else
-    FILE *hDisk = NULL;
+    FILE *hDisk = nullptr;
 
-    hDisk = fopen(this->root,"rb");
-    if(hDisk == NULL)
+    hDisk = fopen(this->root, "rb");
+    if(hDisk == nullptr)
     {
         if(isDiskOpen)
             isDiskOpen = false;
 
-        return false;
+        throw new UnauthorizedAccessException(QString("Falha ao abrir a unidade %1 para leitura").arg(root));
     }
 
     isDiskOpen = true;
@@ -78,7 +80,7 @@ bool disk::isOpen() const
 #ifdef Q_OS_WIN
     a = disk_file != nullptr;
 #else
-    a = disk_file != NULL;
+    a = disk_file != nullptr;
 #endif
 
     b = isDiskOpen;
@@ -97,8 +99,6 @@ long disk::read_sector(unsigned int sector_number = 0, unsigned int *data = null
     DWORD free_clusters;
     DWORD total_clusters;
     DWORD bytes_readed;
-
-    /* Len must be sizeof(data) */
 
     if(!this->isOpen())
     {
@@ -138,11 +138,18 @@ long disk::read_sector(unsigned int sector_number = 0, unsigned int *data = null
 
     return static_cast<long>(bytes_readed);
 #else
+
+    if(!isOpen())
+    {
+        qDebug() << "Disk is not open";
+        return 1;
+    }
+
     // Set file pointer position
     fseek(disk_file,sector_number,SEEK_SET);
 
     if(this->isOpen()) {
-        fread(data,sizeof(data),len,disk_file);
+        fread(data, sizeof(unsigned int), len, disk_file);
     }
 
     return 0;
@@ -206,7 +213,6 @@ QString disk::map_root_drive()
     (void)path_mapped;
     (void)letter;
     (void)c_letter;
-    (void)i;
     (void)id;
 
     return QString::fromLatin1(root);

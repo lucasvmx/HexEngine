@@ -8,7 +8,7 @@ class Exception
 public:
     Exception();
     Exception(QString message);
-    ~Exception();
+    virtual ~Exception();
 
     virtual QString getMessage();
 private:
@@ -21,6 +21,19 @@ public:
     IOException(QString message);
     IOException();
     ~IOException();
+
+    QString getMessage();
+
+private:
+    QString message;
+};
+
+class UnauthorizedAccessException : public Exception
+{
+public:
+    UnauthorizedAccessException(QString message);
+    UnauthorizedAccessException();
+    ~UnauthorizedAccessException();
 
     QString getMessage();
 

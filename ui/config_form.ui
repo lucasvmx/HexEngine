@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>313</width>
+    <width>325</width>
     <height>176</height>
    </rect>
   </property>
@@ -61,10 +61,18 @@
       <string notr="true">QGroupBox::disabled
 {
 	color: rgb(150, 150, 150);
+}
+
+QGroupBox::enabled
+{
+	color: rgb(255,0,0);
 }</string>
      </property>
      <property name="title">
       <string>Number of digits (max. 6):</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
@@ -93,7 +101,7 @@ QDial::disabled
          <number>2</number>
         </property>
         <property name="maximum">
-         <number>6</number>
+         <number>4</number>
         </property>
         <property name="pageStep">
          <number>3</number>
@@ -142,14 +150,32 @@ QLCDNumber::disabled
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="maximumSize">
          <size>
           <width>40</width>
           <height>16777215</height>
          </size>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QLabel
+{
+	color: rgb(0,170,255);
+}
+
+QLabel::disabled
+{
+	color: rgb(150,150,150);
+}
+</string>
+        </property>
         <property name="text">
-         <string>Sample:</string>
+         <string>Ex:</string>
         </property>
        </widget>
       </item>
@@ -159,7 +185,15 @@ QLCDNumber::disabled
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">font: 75 10pt &quot;MS Shell Dlg 2&quot;;</string>
+         <string notr="true">QLabel
+{
+	color: rgb(0,170,255);
+}
+
+QLabel::disabled
+{
+	color: rgb(150, 150, 150);
+}</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>

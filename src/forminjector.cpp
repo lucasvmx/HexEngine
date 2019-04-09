@@ -3,6 +3,7 @@
 #include "hexengine.h"
 #include "common.h"
 #include "exceptions.h"
+#include "hexinjector.h"
 
 #include <QFileDialog>
 #include <QMovie>
@@ -32,11 +33,12 @@ formInjector::formInjector(QWidget *parent) :
     gif = new QMovie(":/files/spin-progress.gif");
     ui->gifLabel->setMovie(gif);
 
-    ui->statusLabel->setText("Limite de tamanho: " + QString::asprintf("%llu kB", injector->calculateConversionLimitKB()));
+    ui->statusLabel->setText("Limite de tamanho: " + QString("%1 kB").arg(injector->calculateConversionLimitKB()));
 }
 
 formInjector::~formInjector()
 {
+    injector->quit();
     delete ui;
 }
 
@@ -112,8 +114,9 @@ void formInjector::start_gif()
 
 void formInjector::on_pushButton_StopInjection_clicked()
 {
-    if(injector->isRunning()) {
-        injector->requestInterruption();
+    if(injector->isRunning())
+    {
+        //injector->requestInterruption();
         update_status("Interrompendo conversão ...");
     } else {
         QMessageBox::critical(this, "Erro", "Nenhuma conversão está sendo realizada no momento");

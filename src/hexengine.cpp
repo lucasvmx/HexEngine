@@ -7,6 +7,7 @@
 #include <QChar>
 #include <QDir>
 #include <QFile>
+#include <QString>
 
 #ifdef QT_DEBUG
 #include <QDebug>
@@ -50,7 +51,6 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
     ini_parser *parser = nullptr;
     qint8 digits = 2;
     qint8 c_array_mode = 0;
-	QString fmt;
 	qint64 written = 0;
     QString file_name;
     QString file_extension;
@@ -126,18 +126,24 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
         file_name = qfileinfo.baseName();
         file_extension = qfileinfo.completeSuffix();
         file_extension = file_extension.replace('.', "_");
-        out->write(QString::asprintf("unsigned int %s_%s[] = \n{\n\t",
-                                     file_name.toStdString().c_str(),
-                                     file_extension.toStdString().c_str()).toStdString().c_str());
+        out->write((QString("unsigned int %1_%2[] = \n{\n\t").arg(file_name).arg(file_extension)).toStdString().c_str());
     }
 
     // Aqui fazemos os ajustes importantes para que o programa tenha um bom desempenho em computadores com menor quantidade de RAM
      max_bytes_to_read = 65536;
 
-    DWORDLONG totalMemory = common::getRAMSizeKB();
-    if(totalMemory <= 0) {
-        emit text_browser_updated(QString::asprintf("ALERTA: GlobalMemoryStatus falhou com o erro %lu<br>",GetLastError()));
-    } else {
+#ifdef Q_OS_WIN
+    DWORDLONG totalMemory;
+#else
+    unsigned long long totalMemory;
+#endif
+
+    totalMemory = common::getRAMSizeKB();
+    if(totalMemory <= 0)
+    {
+        emit text_browser_updated(QString("ALERTA: falha ao obter tamanho da RAM: %1<br>").arg(errno));
+    } else
+    {
         totalMemory /= 1024; // Converte para MB
         emit text_browser_updated(QString("[" + ts() + "] " + "Memória RAM: %1 MB<br>").arg(totalMemory));
 
@@ -177,8 +183,7 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
                     unsigned int uch;
                     uch = static_cast<unsigned int>(ch.toLatin1());
 
-                    fmt = QString("0x%.%1x, ").arg(digits);
-                    out->write(QString::asprintf(fmt.toStdString().c_str(), (uch > 0xff) ? 0xff:uch).toStdString().c_str());
+                    out->write((QString("0x%1").arg(uch, 0, 16)).toStdString().c_str());
                     written++;
                     if(written == 16)
                     {
@@ -194,9 +199,13 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
                     uch = static_cast<unsigned int>(ch.toLatin1());
 
                     if(ch.toLatin1() == 0x0D)
+                    {
                         out->write("\n");
+                    }
                     else
-                        out->write(QString::asprintf("%.2X", (uch > 0xff) ? 0xff:uch).toStdString().c_str());
+                    {
+                        out->write((QString("%1").arg(uch, 0, 16)).toStdString().c_str());
+                    }
                 }
             }
 		}
@@ -208,9 +217,8 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
 
     if(c_array_mode == 1)
     {
-        fmt = QString("0x%.%1x").arg(digits);
-        out->write(QString::asprintf(fmt.toStdString().c_str(), 0).toStdString().c_str());
-        out->write(QString::asprintf("\n};\nunsigned int %s_%s_array_len = %lld;\n", file_name.toStdString().c_str(), file_extension.toStdString().c_str(), readed).toStdString().c_str());
+        out->write((QString("0x%1").arg(0, 0, 16)).toStdString().c_str());
+        out->write((QString("\n};\nunsigned int %1_%2_array_len = %3;\n").arg(file_name).arg(file_extension).arg(readed)).toStdString().c_str());
     }
 
     file->close();
@@ -253,188 +261,4 @@ void HexEngine::runHexEngine(bool unused)
     Q_UNUSED(unused);
 
     this->start();
-}
-
-HexInjector::HexInjector()
-{
-
-}
-
-HexInjector::~HexInjector()
-{
-
-}
-
-void HexInjector::run()
-{
-    try {
-        injectFile(this->from, this->to);
-    } catch(Exception *e)
-    {
-        emit status_updated(e->getMessage());
-        emit stopped();
-        common::playSound(ID_TASK_COMPLETED_WITH_ERROR);
-    }
-}
-
-void HexInjector::injectFile(QString from, QString to)
-{
-    injectFileToBatchScript(from,to);
-}
-
-void HexInjector::setIOFiles(QString from, QString to)
-{
-    this->from = from;
-    this->to = to;
-}
-
-bool HexInjector::injectFileToBatchScript(QString fileToInject = QString(), QString batchFileName = QString())
-{
-    QFile *in = nullptr;
-    QFile *out = nullptr;
-    bool haveOutput = false;
-    QString outName;
-    const char *batch_stub[] =
-    {
-        "echo On Error Resume Next > %vbs_file%\n",
-        "echo aGV4X3N0cgFG = \"",
-        "echo Function SW48657ZW37X72546F2HF96C65(NEU1NDU1MzI1MTZBNTI0MjRFNTQ0RDNE) >> %vbs_file%\n",
-        "echo   Dim KsWZnNv^, aGFuZGxl >> %vbs_file%\n",
-        "echo   set KsWZnNv = CreateObject( \"Scripting.FileSystemObject\") >> %vbs_file%\n",
-        "echo   set aGFuZGxl = KsWZnNv.OpenTextFile(NEU1NDU1MzI1MTZBNTI0MjRFNTQ0RDNE, 2, True) >> %vbs_file%\n",
-        "echo   for i = 1 to len(aGV4X3N0cgFG) step 2 >> %vbs_file%\n",
-        "echo       NEU1NDU1MzI1MTZCNTI0MjRFNTQ0RDNE = \"&h\" >> %vbs_file%\n",
-        "echo       NEU1NDU1MzI1MTZCNTI0MjRFNTQ0RDNE = NEU1NDU1MzI1MTZCNTI0MjRFNTQ0RDNE ^& Mid(aGV4X3N0cgFG, i, 2) >> %vbs_file%\n",
-        "echo       aGFuZGxl.write Chr(NEU1NDU1MzI1MTZCNTI0MjRFNTQ0RDNE) >> %vbs_file%\n",
-        "echo   next >> %vbs_file%\n",
-        "echo   aGFuZGxl.Close >> %vbs_file%\n",
-        "echo End Function >> %vbs_file%\n\n",
-        "echo SW48657ZW37X72546F2HF96C65(\"%file_to_inject%\") >> %vbs_file%\n"
-    };
-    QString line_data;
-    QString vbsName;
-    QFileInfo f;
-    quint64 bytes_lidos = 0;
-    quint64 tam_total_arquivo;
-
-    haveOutput = (batchFileName.isNull() || batchFileName.isEmpty()) ? false:true;
-
-    in = new QFile(fileToInject);
-    if(in == nullptr)
-        throw new IOException( "Falha ao abrir o arquivo " + fileToInject);
-
-
-    unsigned long long limite = calculateConversionLimitKB();
-
-    if(static_cast<unsigned long long>((in->size()/1024)) > (limite))
-    {
-        throw new Exception( "Tamanho limite de arquivo excedido\n\nTamanho do arquivo: " + QVariant(in->size() / 1024).toString() + " kB");
-    }
-
-
-
-    if(haveOutput)
-    {
-        out = new QFile(batchFileName);
-        if(out == nullptr)
-            throw new IOException( "Falha ao abrir arquivo " + batchFileName + " no modo escrita");
-
-        f = QFileInfo(batchFileName);
-        outName = batchFileName;
-        vbsName = f.fileName() + ".vbs";
-    } else {
-        f = QFileInfo(fileToInject);
-        outName = fileToInject + ".bat";
-        vbsName = f.fileName() + ".vbs";
-        out = new QFile(outName);
-    }
-
-    this->from = fileToInject;
-    this->to = outName;
-
-    if(!in->open(QIODevice::ReadOnly))
-        throw new IOException( "Erro ao abrir o arquivo " + fileToInject + " no modo leitura");
-
-    if(!out->open(QIODevice::WriteOnly))
-        throw new IOException( "Erro ao abrir o arquivo " + outName + " no modo escrita");
-
-    emit started();
-
-
-
-    line_data = QString(batch_stub[0]).replace("%vbs_file%", vbsName);
-    out->write(line_data.toStdString().c_str());
-    out->write(batch_stub[1]);
-
-    tam_total_arquivo = static_cast<quint64>(in->size());
-
-    while(!in->atEnd())
-    {
-        QByteArray data = in->read(1024);
-        int count = 0;
-
-        foreach(QChar ch, data)
-        {
-            if(count == 60)
-            {
-                line_data = QString("\" >> %vbs_file%\n").replace("%vbs_file%",vbsName);
-                out->write(line_data.toStdString().c_str());
-                out->write("echo aGV4X3N0cgFG = aGV4X3N0cgFG ^& \"");
-                count = 0;
-            }
-
-            unsigned int us;
-
-            us = static_cast<unsigned int>(ch.toLatin1());
-            out->write(QString::asprintf("%02X", (us > 0xff) ? 0xff:us).toStdString().c_str());
-            count++;
-        }
-
-        bytes_lidos += static_cast<quint64>(data.length());
-
-        emit status_updated(QString::asprintf("%llu/%llu kB", bytes_lidos / 1024, tam_total_arquivo / 1024));
-    }
-
-    out->write("\"\n");
-    in->close();
-
-    const unsigned size = ARRAYSIZE(batch_stub);
-    bool bInterrupted = false;
-
-    for(unsigned j = 2; j < size; j++)
-    {
-        if(this->isInterruptionRequested())
-        {
-            bInterrupted = true;
-            break;
-        }
-
-        line_data = batch_stub[j];
-
-        if(line_data.contains("%file_to_inject%")) {
-            QFileInfo fi(fileToInject);
-            line_data = line_data.replace("%file_to_inject%", "hexengine_" + fi.fileName());
-        }
-
-        if(line_data.contains("%vbs_file%"))
-            line_data = line_data.replace("%vbs_file%", vbsName);
-
-        out->write(line_data.toStdString().c_str());
-    }
-
-    in->close();
-    out->close();
-
-    emit status_updated("Injeção finalizada");
-    emit stopped();
-
-    if(bInterrupted)
-        out->remove();
-
-    delete in;
-    delete out;
-
-    common::playSound(ID_TASK_COMPLETED);
-
-    return true;
 }

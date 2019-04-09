@@ -1,11 +1,12 @@
 <RCC>
     <qresource prefix="/">
         <file>files/background.jpg</file>
-        <file>files/icon1.ico</file>
-        <file>files/icon2.ico</file>
         <file>files/finished-task.mp3</file>
         <file>files/finished-task_with-error.mp3</file>
-        <file>files/spin-progress.gif</file>
+        <file>files/icon1.ico</file>
+        <file>files/icon2.ico</file>
+        <file>files/icon3.ico</file>
         <file>files/shell32_153.ico</file>
+        <file>files/spin-progress.gif</file>
     </qresource>
 </RCC>

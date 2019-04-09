@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QDateTime>
 #include <QMessageBox>
+#include <QByteArray>
 
 #ifdef QT_DEBUG
 #include <QDebug>
@@ -38,6 +39,8 @@ config_form::config_form(QWidget *parent) :
     this->connect_all_events();
     this->setWindowTitle("Settings");
     this->setWindowIcon(QIcon(":/files/icon2.ico"));
+
+    ui->groupBox->setTitle(QString("Number of digits (max. %1):").arg(ui->dial_ndigits->maximum()));
 }
 
 config_form::~config_form()
@@ -48,8 +51,6 @@ config_form::~config_form()
 void config_form::handle_dial_value_changed(int value)
 {
     QString text;
-    QString new_text;
-    QString tx;
     qint32 seed;
     QTime tm;
     qint32 random;
@@ -57,15 +58,13 @@ void config_form::handle_dial_value_changed(int value)
     tm = QTime::currentTime();
     seed = tm.hour() + tm.second() + tm.minute() + tm.msec();
     qsrand(static_cast<uint>(seed));
-    random = qrand() % 50 + 1;
+    random = qrand() % 255 + 1;
 
     try
     {
-        text = QString::asprintf( "0x%%.%dx",value);
-        new_text = QString::asprintf("Hex: %s Dec: %d", text.toStdString().c_str(), random);
-        tx = QString::asprintf(new_text.toStdString().c_str(), random);
+        text = QString("Hex: %1 Dec: %2").arg(random, ui->dial_ndigits->value(), 16, QLatin1Char('0')).arg(random, 0, 10);
 #ifdef QT_DEBUG
-        qDebug() << text << ":" << tx << ":" << new_text;
+        qDebug() << text;
 #endif
     } catch(std::exception e)
     {
@@ -74,7 +73,7 @@ void config_form::handle_dial_value_changed(int value)
     }
 
     ui->lcd_display_ndigits->display(value);
-    ui->label_ndigits_sample->setText(tx);
+    ui->label_ndigits_sample->setText(text);
 }
 
 void config_form::handle_window_destroyed(QObject *o)
@@ -148,6 +147,13 @@ void config_form::connect_all_events()
 
     QObject::connect(ui->checkbox_carray_output, SIGNAL(toggled(bool)),
                      ui->dial_ndigits, SLOT(setEnabled(bool)));
+
+    QObject::connect(ui->checkbox_carray_output, SIGNAL(toggled(bool)),
+                     ui->label_ndigits_sample, SLOT(setEnabled(bool)));
+
+    QObject::connect(ui->checkbox_carray_output, SIGNAL(toggled(bool)),
+                     ui->label, SLOT(setEnabled(bool)));
+
     QObject::connect(this, SIGNAL(destroyed(QObject*)),
                      this, SLOT(handle_window_destroyed(QObject *)));
 

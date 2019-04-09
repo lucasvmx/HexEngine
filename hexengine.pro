@@ -26,33 +26,36 @@ DEFINES += QT_DEPRECATED_WARNINGS
 win32:RC_ICONS += files/icon1.ico
 
 SOURCES += \
-        main.cpp \
-        mainwindow.cpp \
-        hexengine.cpp \
-        config_form.cpp \
-        ini_parser.cpp \
-    forminjector.cpp \
-    exceptions.cpp \
-    common.cpp \
-    disk.cpp
+        src/main.cpp \
+        src/mainwindow.cpp \
+        src/hexengine.cpp \
+        src/config_form.cpp \
+        src/ini_parser.cpp \
+        src/forminjector.cpp \
+        src/exceptions.cpp \
+        src/common.cpp \
+        src/disk.cpp \
+    src/hexinjector.cpp
 
 HEADERS += \
-        mainwindow.h \
-        hexengine.h \
-        config_form.h \
-        ini_parser.h \
-    forminjector.h \
-    exceptions.h \
-    common.h \
-    disk.h
+        src/mainwindow.h \
+        src/hexengine.h \
+        src/config_form.h \
+        src/ini_parser.h \
+        src/forminjector.h \
+        src/exceptions.h \
+        src/common.h \
+        src/disk.h \
+        src/autorevision.h \
+    src/hexinjector.h
 
 FORMS += \
-        mainwindow.ui \
-    config_form.ui \
-    forminjector.ui
+        ui/mainwindow.ui \
+        ui/config_form.ui \
+        ui/forminjector.ui
 
 RESOURCES += \
-    resources.qrc
+    res/resources.qrc
 
 DISTFILES += \
     android/AndroidManifest.xml \

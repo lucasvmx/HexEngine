@@ -1,5 +1,9 @@
 #include "common.h"
 
+#ifdef Q_OS_LINUX
+#include <sys/sysinfo.h>
+#endif
+
 #ifdef Q_OS_WIN
     #include <QMediaPlayer>
     #include <windows.h>
@@ -7,7 +11,9 @@
 
 #endif
 
+#ifdef Q_OS_WIN
 static QMediaPlayer *p = nullptr;
+#endif
 
 common::common()
 {
@@ -51,8 +57,10 @@ unsigned long long common::getRAMSizeKB()
     if(sys == nullptr)
     {
         return 0;
-    } else {
+    } else
+    {
         int s = sysinfo(sys);
+
         if(s == 0)
         {
             totalMemory = sys->totalram;
@@ -91,6 +99,5 @@ void common::playSound(int id)
     delete p;
 #else
     (void)id;
-    QApplication::beep();
 #endif
 }
