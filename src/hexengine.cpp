@@ -115,7 +115,7 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
 	
     if(c_array_mode == 1)
     {
-        if(digits < 2 || digits > 12)
+        if(digits < 2 || digits > 4)
         {
             emit text_browser_updated( "[" + ts() + "] " + \
                                        "<font color=\"red\">Alerta:</font> configurações inválidas encontradas em " + CONFIG_FILENAME + "<br>");
@@ -183,7 +183,7 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
                     unsigned int uch;
                     uch = static_cast<unsigned int>(ch.toLatin1());
 
-                    out->write((QString("0x%1").arg(uch, 0, 16)).toStdString().c_str());
+                    out->write((QString("0x%1, ").arg(uch, digits, 16, QLatin1Char('0'))).toStdString().c_str());
                     written++;
                     if(written == 16)
                     {
@@ -217,7 +217,7 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
 
     if(c_array_mode == 1)
     {
-        out->write((QString("0x%1").arg(0, 0, 16)).toStdString().c_str());
+        out->write((QString("0x%1").arg(0, digits, 16, QLatin1Char('0'))).toStdString().c_str());
         out->write((QString("\n};\nunsigned int %1_%2_array_len = %3;\n").arg(file_name).arg(file_extension).arg(readed)).toStdString().c_str());
     }
 

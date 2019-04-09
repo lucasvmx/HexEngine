@@ -10,8 +10,10 @@
 #include <QCheckBox>
 #include <QMessageBox>
 
+using namespace Engine;
+
 static QMovie *gif = nullptr;
-static Engine::HexInjector *injector = nullptr;
+static HexInjector *injector = nullptr;
 
 formInjector::formInjector(QWidget *parent) :
     QWidget(parent),
@@ -23,10 +25,7 @@ formInjector::formInjector(QWidget *parent) :
     setFixedWidth(width());
     setWindowTitle("Injetar executável dentro de arquivo .BAT");
 
-    ui->pushButton_Search1->setEnabled(false);
-    ui->lineEdit_FilePath1->setEnabled(false);
-
-    injector = new Engine::HexInjector();
+    injector = new HexInjector();
 
     connectEvents();
 
@@ -55,24 +54,11 @@ void formInjector::handle_push_button_search_input_clicked(bool b)
     }
 }
 
-void formInjector::disable_text_box_and_button(int checkedState)
-{
-    if(checkedState == Qt::CheckState::Checked)
-    {
-        ui->lineEdit_FilePath1->setEnabled(true);
-        ui->pushButton_Search1->setEnabled(true);
-    } else if(checkedState == Qt::CheckState::Unchecked)
-    {
-        ui->lineEdit_FilePath1->setEnabled(false);
-        ui->pushButton_Search1->setEnabled(false);
-    }
-}
-
 void formInjector::handle_push_button_search_output_clicked(bool b)
 {
     (void)b;
 
-    QString fileName = QFileDialog::getOpenFileName(this,"Selecione o script aonde você deseja injetar",
+    QString fileName = QFileDialog::getSaveFileName(this,"Selecione aonde o script deve ser salvo",
                                                     QString(),"Script do windows (*.bat *.cmd)");
 
     if(!fileName.isEmpty() && !fileName.isNull())
@@ -128,7 +114,6 @@ void formInjector::connectEvents()
     connect(ui->pushButton_Search, SIGNAL(clicked(bool)), this, SLOT(handle_push_button_search_input_clicked(bool)));
     connect(ui->pushButton_Search1, SIGNAL(clicked(bool)), this, SLOT(handle_push_button_search_output_clicked(bool)));
     connect(ui->pushButton_Inject, SIGNAL(clicked(bool)), this, SLOT(handle_push_button_inject_clicked(bool)));
-    connect(ui->checkBox, SIGNAL(stateChanged(int)), this, SLOT(disable_text_box_and_button(int)));
     connect(injector, SIGNAL(status_updated(QString)), this, SLOT(update_status(QString)));
     connect(injector, SIGNAL(started()), this, SLOT(start_gif()));
     connect(injector, SIGNAL(stopped()), this, SLOT(stop_gif()));

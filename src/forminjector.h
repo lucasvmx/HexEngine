@@ -17,7 +17,6 @@ public:
 
 public slots:
         void handle_push_button_search_input_clicked(bool b);
-        void disable_text_box_and_button(int checkedState);
         void handle_push_button_search_output_clicked(bool b);
         void handle_push_button_inject_clicked(bool b);
         void update_status(QString s);

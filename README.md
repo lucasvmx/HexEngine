@@ -13,6 +13,7 @@ para o formato hexadecimal. Foi desenvolvida apenas para fins didáticos.
 * Coloque na caixa de texto **Command** o seguinte valor: **%{CurrentProject:Path}/autorevision.bat**
 * Coloque o valor **%{CurrentProject:Path}** na caixa de texto **Working dir**
 * Após adicionar o processo manual, clique no botão **Move Up (seta para cima)** para que este processo seja executado antes do qmake
+* Reinicie o Qt
 * Pressione CTRL + B para compilar o projeto e CTRL + R para executar o programa
 
 # Plataformas suportadas

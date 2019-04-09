@@ -26,8 +26,8 @@ if not exist %project_file% (
 	goto error
 )
 
-set sh_exe=%PASTA_GIT_BIN%\sh.exe
-set bash_exe=%PASTA_GIT_BIN%\bash.exe
+set sh_exe="%PASTA_GIT_BIN%\sh.exe"
+set bash_exe="%PASTA_GIT_BIN%\bash.exe"
 
 if not exist %sh_exe% (
 	echo %sh_exe% not found

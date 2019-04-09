@@ -16,7 +16,7 @@ public:
     ~disk();
     disk(const char *root);
     long read_sector(unsigned int sector_number, unsigned int *data, unsigned int len);
-    bool open_disk() throw(UnauthorizedAccessException);
+    bool open_disk() noexcept(false);
     bool close_disk();
     bool isOpen() const;
 private:

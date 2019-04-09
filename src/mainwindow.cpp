@@ -20,7 +20,7 @@
 using namespace Engine;
 
 static HexEngine *engine = nullptr;
-
+static formInjector *injectorForm = nullptr;
 static QGraphicsOpacityEffect *effect = nullptr;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -173,15 +173,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
         result = QMessageBox::question(this, "Pergunta", "Uma conversão está em andamento. Você tem certeza que deseja interromper a conversão ?");
         if(result == QMessageBox::Yes)
         {
-            //engine->requestInterruption();
+            engine->requestInterruption();
             engine->wait(3000);
             engine->terminate();
+            injectorForm->close();
             event->accept();
         } else
         {
             event->ignore();
         }
     } else {
+        injectorForm->close();
         event->accept();
     }
 }
@@ -189,8 +191,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::handle_action_batch_file_inject(bool b)
 {
     (void)b;
-
-    static formInjector *injectorForm = nullptr;
 
     if(injectorForm == nullptr)
     {
@@ -219,6 +219,7 @@ void MainWindow::handle_action_quit(bool b)
 
     engine->requestInterruption();
     engine->wait(3000);
+    injectorForm->close();
     this->close();
 }
 

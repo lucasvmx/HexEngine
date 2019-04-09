@@ -135,13 +135,13 @@ bool HexInjector::injectFileToBatchScript(QString fileToInject = QString(), QStr
             unsigned int us;
 
             us = static_cast<unsigned int>(ch.toLatin1());
-            out->write(QString("%02X").arg(us).toStdString().c_str());
+            out->write(QString("%1").arg(us, 0, 16, QLatin1Char('0')).toStdString().c_str());
             count++;
         }
 
         bytes_lidos += static_cast<quint64>(data.length());
 
-        emit status_updated(QString("%llu/%llu kB").arg(bytes_lidos/1024).arg(tam_total_arquivo/1024));
+        emit status_updated(QString("%1/%2 kB").arg(bytes_lidos/1024).arg(tam_total_arquivo/1024));
     }
 
     out->write("\"\n");
@@ -174,7 +174,7 @@ bool HexInjector::injectFileToBatchScript(QString fileToInject = QString(), QStr
     in->close();
     out->close();
 
-    emit status_updated("Injeção finalizada");
+    emit status_updated(QString("Injeção finalizada. Salvo em: %1").arg(batchFileName));
     emit stopped();
 
     if(bInterrupted)
