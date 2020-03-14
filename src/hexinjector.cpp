@@ -122,7 +122,7 @@ bool HexInjector::injectFileToBatchScript(QString fileToInject = QString(), QStr
         QByteArray data = in->read(1024);
         int count = 0;
 
-        foreach(QChar ch, data)
+        for(auto ch : data)
         {
             if(count == 60)
             {
@@ -132,10 +132,7 @@ bool HexInjector::injectFileToBatchScript(QString fileToInject = QString(), QStr
                 count = 0;
             }
 
-            unsigned int us;
-
-            us = static_cast<unsigned int>(ch.toLatin1());
-            out->write(QString("%1").arg(us, 0, 16, QLatin1Char('0')).toStdString().c_str());
+            out->write(QString("%1").arg(ch, 0, 16, QLatin1Char('0')).toStdString().c_str());
             count++;
         }
 

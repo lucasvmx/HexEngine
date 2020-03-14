@@ -20,7 +20,7 @@ namespace Engine
 
     public:
         HexEngine();
-        ~HexEngine();
+        virtual ~HexEngine();
         void run();
         QString ts(); /* Time String */
         QString filename;
@@ -28,7 +28,8 @@ namespace Engine
         unsigned long long calculateConversionLimitKB();
 
     private:
-        void CreateHexDumpFromFile(QString &filename);
+        void CreateHexdumpFromFile(QString &filename);
+        void CreateHexdumpFromDisk(QString &disk);
 
     signals:
         void progress_updated(int v);

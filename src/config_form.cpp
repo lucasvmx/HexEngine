@@ -5,31 +5,11 @@
 #include <QDateTime>
 #include <QMessageBox>
 #include <QByteArray>
+#include <QException>
 
 #ifdef QT_DEBUG
 #include <QDebug>
 #endif
-
-/*
- * Icons:
- *
- * Alexandre Luis - https://www.iconfinder.com/stormicons
- * Oxygen Icons - http://www.oxygen-icons.org/
- * Madarancio - http://mandarancio.deviantart.com/
- */
-
-/*
-	Button click sound
-	
-	Title: Button
-	About: The sound of a button being clicked. great for flash design or operating system.
-	Uploaded: 07.27.09 | License: Attribution 3.0 | Recorded by Mike Koenig | File Size: 45 KB
-*/
-
-/*
- *	Sound:
- *	task-completed: https://notificationsounds.com/message-tones/finished-task-206 Creative Commons
- */
 
 config_form::config_form(QWidget *parent) :
     QWidget(parent),
@@ -40,7 +20,7 @@ config_form::config_form(QWidget *parent) :
     this->setWindowTitle("Settings");
     this->setWindowIcon(QIcon(":/files/icon2.ico"));
 
-    ui->groupBox->setTitle(QString("Number of digits (max. %1):").arg(ui->dial_ndigits->maximum()));
+    ui->groupBox->setTitle(QString("Número máximo de dígitos (máx. %1)").arg(ui->dial_ndigits->maximum()));
 }
 
 config_form::~config_form()
@@ -66,7 +46,7 @@ void config_form::handle_dial_value_changed(int value)
 #ifdef QT_DEBUG
         qDebug() << text;
 #endif
-    } catch(std::exception e)
+    } catch(QException &e)
     {
         QMessageBox::critical(this,"Fatal error", QString(e.what()));
         return;

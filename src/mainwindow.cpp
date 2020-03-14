@@ -103,7 +103,7 @@ void MainWindow::connect_all()
     QObject::connect(ui->actionBatchFileInjector, SIGNAL(triggered(bool)),
                      this, SLOT(handle_action_batch_file_inject(bool)));
 
-     ui->statusBar->showMessage( "Loading completed");
+     ui->statusBar->showMessage( "Carregamento concluido");
 }
 
 void MainWindow::configure_progress_bar(int min, int max, int value)
@@ -138,7 +138,7 @@ void MainWindow::validate_line_edit_text(QString text)
     QFile f(text);
     QDir d(text);
 
-    if((!f.exists()) || (d.isRoot()) || (!d.isReadable()))
+    if((!f.exists()) || (!d.isReadable()))
         validated = false;
 
     if(validated)
@@ -176,14 +176,19 @@ void MainWindow::closeEvent(QCloseEvent *event)
             engine->requestInterruption();
             engine->wait(3000);
             engine->terminate();
-            injectorForm->close();
+            if(injectorForm != nullptr)
+                injectorForm->close();
+
             event->accept();
         } else
         {
             event->ignore();
         }
-    } else {
-        injectorForm->close();
+    } else
+    {
+        if(injectorForm != nullptr)
+            injectorForm->close();
+
         event->accept();
     }
 }

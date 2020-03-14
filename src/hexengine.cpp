@@ -2,12 +2,14 @@
 #include "ini_parser.h"
 #include "exceptions.h"
 #include "common.h"
+#include "disk.h"
 
 #include <QMessageBox>
 #include <QChar>
 #include <QDir>
 #include <QFile>
 #include <QString>
+#include <QtCore>
 
 #ifdef QT_DEBUG
 #include <QDebug>
@@ -18,6 +20,10 @@
 #include <sys/sysinfo.h>
 #else
 #include <windows.h>
+#endif
+
+#ifdef Q_OS_WIN
+typedef BOOL (WINAPI *fUserAdmin)(void);
 #endif
 
 using namespace Engine;
@@ -34,10 +40,10 @@ HexEngine::~HexEngine()
 
 void HexEngine::run()
 {
-    this->CreateHexDumpFromFile(this->filename);
+    this->CreateHexdumpFromFile(this->filename);
 }
 
-void HexEngine::CreateHexDumpFromFile(QString& filename)
+void HexEngine::CreateHexdumpFromFile(QString& filename)
 {
     QFile *file = nullptr;
     QFile *out = nullptr;
@@ -54,6 +60,7 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
 	qint64 written = 0;
     QString file_name;
     QString file_extension;
+    bool is_disk = false;
 
     if(this->filename.isNull() || this->filename.isEmpty()
         || this->outfilename.isNull() || this->outfilename.isEmpty())
@@ -68,6 +75,46 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
         return;
     }
 
+
+    is_disk = Disk::IsHardDiskPath(filename);
+
+#ifdef QT_DEBUG
+    qDebug() << "Is disk:" << is_disk;
+#endif
+
+#ifdef Q_OS_WIN
+    if(is_disk)
+    {
+        HMODULE shell = GetModuleHandleA("shell32.dll");
+        fUserAdmin IsRootUser = reinterpret_cast<fUserAdmin>(GetProcAddress(shell, "IsUserAnAdmin"));
+        if(IsRootUser)
+        {
+            if(!IsRootUser())
+            {
+                emit engine_stopped_with_error(true);
+                emit text_browser_updated("["+ts()+"] <font color=\"red\">Você precisa ser administrador!</font><br>");
+                FreeLibrary(shell);
+
+                return;
+            }
+        }
+
+        FreeLibrary(shell);
+
+        return CreateHexdumpFromDisk(filename);
+    }
+#else
+    if(is_disk && (getuid() != 0))
+    {
+        emit text_browser_updated("["+ts()+"] <font color=\"red\">You need root privileges</font><br>");
+        emit engine_stopped_with_error(true);
+    }
+#endif
+
+#ifdef QT_DEBUG
+    qDebug() << "Path: " << filename;
+#endif
+
     out = new QFile(outfilename);
     file = new QFile(filename);
     if(file == nullptr || out == nullptr)
@@ -81,7 +128,7 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
 
     if(!file->open(QIODevice::ReadOnly) || (!out->open(QIODevice::WriteOnly)))
     {
-        emit text_browser_updated( "[" + ts() + "] " + "<font color=\"red\">IO/Error</font>: Erro de E/S. Não foi possível abrir o arquivo<br>");
+        emit text_browser_updated( "[" + ts() + "] " + "<font color=\"red\">IO/Error</font>: Não foi possível abrir o arquivo<br>");
         emit status_bar_updated("Algo deu errado ...", 5000);
         emit engine_stopped_with_error(true);
         emit status_bar_color_changed("rgb(255, 0, 0)");
@@ -228,7 +275,93 @@ void HexEngine::CreateHexDumpFromFile(QString& filename)
     emit text_browser_updated( "[" + ts() + "] " + "Operação finalizada<br>");
     emit status_bar_updated( "Operações finalizadas com sucesso. Tenha um bom dia ...", 5000);
     emit status_bar_color_changed("rgb(0, 170, 0)");
-	emit engine_stopped(true);
+    emit engine_stopped(true);
+}
+
+void HexEngine::CreateHexdumpFromDisk(QString &disk)
+{
+    Disk *hd = nullptr;
+    QFile *output = nullptr;
+    unsigned char data[512];
+
+    hd = new Disk(disk);
+    if(hd == nullptr)
+    {
+        emit text_browser_updated(QString("["+ts()+"] " + "falha ao inicializar classe"));
+        emit status_bar_color_changed("rgb(255,0,0");
+        emit engine_stopped(true);
+        return;
+    }
+
+    // Abre o arquivo aonde os dados serão salvos
+    output = new QFile(outfilename);
+    if(output == nullptr)
+    {
+        emit text_browser_updated(QString("["+ts()+"] " + "Falha ao abrir %1").arg(outfilename));
+        emit engine_stopped(true);
+        return;
+    }
+
+    if(!hd->OpenDisk())
+    {
+        emit text_browser_updated(QString("["+ts()+"] falha ao abrir %1").arg(disk));
+        emit engine_stopped(true);
+        return;
+    }
+
+    if(!output->open(QIODevice::WriteOnly))
+    {
+        emit text_browser_updated(QString("["+ts()+"] " + "Erro ao abrir %1 no modo escrita").arg(QFileInfo(outfilename).fileName()));
+        emit engine_stopped(true);
+        return;
+    }
+
+    // Inicia a conversão
+    long bytes_readed;
+    unsigned long long size = hd->GetSize();
+
+    if(size == 0) size = 1;
+
+    unsigned long long read_count = static_cast<unsigned long long>(size / hd->GetBytesPerSector());
+
+#ifdef QT_DEBUG
+    qDebug() << "Read count:" << read_count << " Disk size (Bytes):" << hd->GetSize();
+#endif
+
+    for(unsigned i = 0; i < read_count; i++)
+    {
+        if(this->isInterruptionRequested())
+        {
+#ifdef QT_DEBUG
+            qDebug() << __FILE__ << ":" << __LINE__ << "Interrupting thread";
+#endif
+            break;
+        }
+
+        bytes_readed = hd->ReadSector(i, data, sizeof(data));
+        if(bytes_readed > 0)
+        {
+            int count = 0;
+
+            for(int i = 0; i < bytes_readed; i++)
+            {
+                if(count == 60)
+                {
+                    output->write("\n");
+                    count = 0;
+                }
+
+                QString local = QString("%1").arg(data[i], 2, 16, QLatin1Char('0'));
+                output->write(local.toStdString().c_str(), local.length());
+                count++;
+            }
+        }
+    }
+
+    output->close();
+
+    emit text_browser_updated("["+ts()+"] " + "Conversão finalizada");
+    emit engine_stopped(true);
 }
 
 QString HexEngine::ts()

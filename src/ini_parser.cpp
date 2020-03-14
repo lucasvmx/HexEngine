@@ -81,7 +81,7 @@ int ini_parser::getKeyValue(QString key)
                 keyValue = list.last();
                 keyName = keyName.simplified();
                 keyValue = keyValue.simplified();
-                if(keyName.compare(key) == 0)
+                if(keyName == key)
                 {
                     keyvalue = keyValue.toInt();
                     break;

@@ -10,23 +10,27 @@
 #include <unistd.h>
 #endif
 
-class disk
+class Disk
 {
 public:
-    ~disk();
-    disk(const char *root);
-    long read_sector(unsigned int sector_number, unsigned int *data, unsigned int len);
-    bool open_disk() noexcept(false);
-    bool close_disk();
-    bool isOpen() const;
+    ~Disk();
+    Disk(const char *root);
+    Disk(QString root);
+    long ReadSector(unsigned sector_number, unsigned char *data, unsigned len);
+    bool OpenDisk() noexcept(false);
+    bool CloseDisk();
+    bool IsOpen() const;
+    static bool IsHardDiskPath(QString path);
+    unsigned long GetBytesPerSector();
+    unsigned long long GetSize();
 private:
-    QString map_root_drive();
-    const char *root;
+    QString MapRootDrive();
+    QString root;
     bool isDiskOpen;
 #ifdef Q_OS_LINUX
-    FILE *disk_file = nullptr;
+    FILE *disk_file;
 #else
-    HANDLE disk_file = nullptr;
+    HANDLE disk_file;
 #endif
 };
 

@@ -102,7 +102,7 @@ void formInjector::on_pushButton_StopInjection_clicked()
 {
     if(injector->isRunning())
     {
-        //injector->requestInterruption();
+        injector->requestInterruption();
         update_status("Interrompendo conversão ...");
     } else {
         QMessageBox::critical(this, "Erro", "Nenhuma conversão está sendo realizada no momento");

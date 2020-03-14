@@ -42,7 +42,7 @@ if not exist %bash_exe% (
 echo Current folder: %cd%
 set command=%sh_exe% %cd%\autorevision.sh
 echo Running command: %command%
-%command% -t h > autorevision.h
+%command% -t h > %cd%/src/autorevision.h
 if %ERRORLEVEL% equ 0 (
 	goto ok
 ) else (
